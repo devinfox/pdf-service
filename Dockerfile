@@ -1,11 +1,11 @@
-# Use Node.js LTS
-FROM node:20-slim
+# Use Debian-based Node image
+FROM node:20-bookworm
 
-# Install pdftk-java and dependencies
+# Install pdftk
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    pdftk-java \
-    && rm -rf /var/lib/apt/lists/*
+    apt-get install -y pdftk-java && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create app directory
 WORKDIR /app
