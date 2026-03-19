@@ -618,7 +618,7 @@ app.post('/api/generate-distribution-form', async (req, res) => {
       fields.push({ name: 'CITY_2', value: formData.checkPayeeCityStateZip || '' });
 
       if (formData.checkMailToDifferent) {
-        fields.push({ name: 'Check Mail To If Different From Payee Address', value: 'On' });
+        fields.push({ name: 'Check Mail To If Different From Payee Address', value: '1' });
         fields.push({ name: 'NAME', value: formData.checkMailToName || '' });
         fields.push({ name: 'PHONE NUMBER for overnight delivery', value: formData.checkMailToPhone || '' });
         fields.push({ name: 'STREET ADDRESS', value: formData.checkMailToAddress || '' });
@@ -651,7 +651,7 @@ app.post('/api/generate-distribution-form', async (req, res) => {
     fields.push({ name: 'CITY_4', value: formData.inKindPayeeCityStateZip || '' });
 
     if (formData.inKindSendToDifferent) {
-      fields.push({ name: 'Check Mail To If Different From Payee Address_3', value: 'On' });
+      fields.push({ name: 'Check Mail To If Different From Payee Address_3', value: '1' });
       fields.push({ name: 'NAME_3', value: formData.inKindSendToName || '' });
       fields.push({ name: 'PHONE NUMBER for overnight delivery_3', value: formData.inKindSendToPhone || '' });
       fields.push({ name: 'STREET ADDRESS_2', value: formData.inKindSendToAddress || '' });
