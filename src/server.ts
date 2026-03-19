@@ -329,6 +329,15 @@ app.post('/api/generate-distribution-form', async (req, res) => {
       return res.status(400).json({ error: 'Missing formData' });
     }
 
+    // Debug logging
+    console.log('Distribution form - fundingMethod:', formData.fundingMethod);
+    console.log('Distribution form - checkPayeeName:', formData.checkPayeeName);
+    console.log('Distribution form - checkPayeeAddress:', formData.checkPayeeAddress);
+    console.log('Distribution form - checkPayeePhone:', formData.checkPayeePhone);
+    console.log('Distribution form - checkPayeeCityStateZip:', formData.checkPayeeCityStateZip);
+    console.log('Distribution form - inKindPayeeName:', formData.inKindPayeeName);
+    console.log('Distribution form - inKindPayeePhone:', formData.inKindPayeePhone);
+
     // Download the PDF template
     const pdfResponse = await fetch(DISTRIBUTION_FORM_PDF_URL);
     if (!pdfResponse.ok) {
@@ -614,6 +623,12 @@ app.post('/api/generate-distribution-form', async (req, res) => {
 
     // Section 8 - Signature Date
     fields.push({ name: 'DATE', value: formData.signatureDate || '' });
+
+    // Debug: log fields related to check and in-kind
+    const debugFields = fields.filter(f =>
+      f.name.includes('PAYEE') || f.name.includes('CITY_2') || f.name.includes('CITY_4')
+    );
+    console.log('Distribution form - payee fields:', JSON.stringify(debugFields, null, 2));
 
     // Create FDF file
     const fdfContent = createFdfContent(fields);
