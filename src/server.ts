@@ -34,6 +34,69 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'pdf-service' });
 });
 
+// Debug endpoint - returns fields that would be generated without creating PDF
+app.post('/api/debug-distribution-form', (req, res) => {
+  try {
+    const { formData } = req.body as { formData: DistributionFormData };
+
+    if (!formData) {
+      return res.status(400).json({ error: 'Missing formData' });
+    }
+
+    // Build field mappings (same as in generate endpoint)
+    const fields: Array<{ name: string; value: string }> = [];
+
+    // Section 1 - Account Owner Information
+    fields.push({ name: 'NAME_ON_ACCT', value: formData.accountName || '' });
+    fields.push({ name: 'ENTRUST_ACCT_NUMBER', value: formData.entrustAccountNumber || '' });
+    fields.push({ name: 'ACCT_TYPE', value: formData.accountType || '' });
+    fields.push({ name: 'EMAIL', value: formData.email || '' });
+    fields.push({ name: 'DAYTIME_PH_NUMBER', value: formData.daytimePhone || '' });
+
+    // Funding Method
+    if (formData.fundingMethod === 'wire') {
+      fields.push({ name: 'Funding Method', value: '1' });
+    } else if (formData.fundingMethod === 'check') {
+      fields.push({ name: 'Funding Method', value: '2' });
+    } else if (formData.fundingMethod === 'ach') {
+      fields.push({ name: 'Funding Method', value: '3' });
+    }
+
+    // Check fields
+    if (formData.fundingMethod === 'check') {
+      fields.push({ name: 'PAYEE NAME_2', value: formData.checkPayeeName || '' });
+      fields.push({ name: 'PAYEE PHONE NUMBER', value: formData.checkPayeePhone || '' });
+      fields.push({ name: 'PAYEE STREET ADDRESS_2', value: formData.checkPayeeAddress || '' });
+      fields.push({ name: 'CITY_2', value: formData.checkPayeeCityStateZip || '' });
+    }
+
+    // In-Kind fields
+    fields.push({ name: 'PAYEE NAME_3', value: formData.inKindPayeeName || '' });
+    fields.push({ name: 'PAYEE PHONE NUMBER_3', value: formData.inKindPayeePhone || '' });
+    fields.push({ name: 'PAYEE STREET ADDRESS_3', value: formData.inKindPayeeAddress || '' });
+    fields.push({ name: 'CITY_4', value: formData.inKindPayeeCityStateZip || '' });
+
+    // Generate FDF preview
+    const fdfContent = createFdfContent(fields);
+
+    return res.json({
+      receivedData: {
+        fundingMethod: formData.fundingMethod,
+        checkPayeeName: formData.checkPayeeName,
+        checkPayeePhone: formData.checkPayeePhone,
+        checkPayeeAddress: formData.checkPayeeAddress,
+        checkPayeeCityStateZip: formData.checkPayeeCityStateZip,
+        inKindPayeeName: formData.inKindPayeeName,
+      },
+      fieldsGenerated: fields,
+      fdfPreview: fdfContent.substring(0, 2000),
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: 'Debug failed', details: errorMessage });
+  }
+});
+
 // PDF template URLs
 const INVESTMENT_DIRECTION_PDF_URL = 'https://ohpjilsntlmlusgbpest.supabase.co/storage/v1/object/public/entrust-transfer-instructions/Investment%20Direction%20Precious%20Metals%20-%20Purchase%20&%20Exchange.pdf';
 const DISTRIBUTION_FORM_PDF_URL = 'https://ohpjilsntlmlusgbpest.supabase.co/storage/v1/object/public/entrust-transfer-instructions/Precious_Metals_Distribution_Form_Jan-26.pdf';
@@ -624,15 +687,17 @@ app.post('/api/generate-distribution-form', async (req, res) => {
     // Section 8 - Signature Date
     fields.push({ name: 'DATE', value: formData.signatureDate || '' });
 
-    // Debug: log fields related to check and in-kind
-    const debugFields = fields.filter(f =>
-      f.name.includes('PAYEE') || f.name.includes('CITY_2') || f.name.includes('CITY_4')
-    );
-    console.log('Distribution form - payee fields:', JSON.stringify(debugFields, null, 2));
+    // Debug: log all fields and FDF content
+    console.log('Distribution form - all fields count:', fields.length);
+    console.log('Distribution form - check fields:', JSON.stringify(
+      fields.filter(f => f.name.includes('PAYEE') || f.name.includes('CITY_')),
+      null, 2
+    ));
 
     // Create FDF file
     const fdfContent = createFdfContent(fields);
-    await writeFile(fdfPath, fdfContent);
+    console.log('Distribution form - FDF content preview:', fdfContent.substring(0, 1000));
+    await writeFile(fdfPath, fdfContent, 'utf-8');
 
     // Fill the PDF with pdftk
     await execAsync(`pdftk "${templatePath}" fill_form "${fdfPath}" output "${filledPath}"`);
