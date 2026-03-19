@@ -541,14 +541,14 @@ app.post('/api/generate-distribution-form', async (req, res) => {
     // Check fields
     if (formData.fundingMethod === 'check') {
       fields.push({ name: 'PAYEE NAME_2', value: formData.checkPayeeName || '' });
-      fields.push({ name: 'PHONE NUMBER for overnight delivery', value: formData.checkPayeePhone || '' });
+      fields.push({ name: 'PAYEE PHONE NUMBER', value: formData.checkPayeePhone || '' });
       fields.push({ name: 'PAYEE STREET ADDRESS_2', value: formData.checkPayeeAddress || '' });
       fields.push({ name: 'CITY_2', value: formData.checkPayeeCityStateZip || '' });
 
       if (formData.checkMailToDifferent) {
         fields.push({ name: 'Check Mail To If Different From Payee Address', value: 'On' });
         fields.push({ name: 'NAME', value: formData.checkMailToName || '' });
-        fields.push({ name: 'PHONE NUMBER for overnight delivery_3', value: formData.checkMailToPhone || '' });
+        fields.push({ name: 'PHONE NUMBER for overnight delivery', value: formData.checkMailToPhone || '' });
         fields.push({ name: 'STREET ADDRESS', value: formData.checkMailToAddress || '' });
         fields.push({ name: 'CITY_3', value: formData.checkMailToCityStateZip || '' });
         fields.push({ name: 'REASON FOR SHIPPING TO NON-PAYEE', value: formData.checkMailToReason || '' });
@@ -574,14 +574,14 @@ app.post('/api/generate-distribution-form', async (req, res) => {
 
     // Section 6 - In-Kind Distribution
     fields.push({ name: 'PAYEE NAME_3', value: formData.inKindPayeeName || '' });
-    fields.push({ name: 'PAYEE PHONE NUMBER', value: formData.inKindPayeePhone || '' });
+    fields.push({ name: 'PAYEE PHONE NUMBER_3', value: formData.inKindPayeePhone || '' });
     fields.push({ name: 'PAYEE STREET ADDRESS_3', value: formData.inKindPayeeAddress || '' });
     fields.push({ name: 'CITY_4', value: formData.inKindPayeeCityStateZip || '' });
 
     if (formData.inKindSendToDifferent) {
       fields.push({ name: 'Check Mail To If Different From Payee Address_3', value: 'On' });
       fields.push({ name: 'NAME_3', value: formData.inKindSendToName || '' });
-      fields.push({ name: 'PAYEE PHONE NUMBER_3', value: formData.inKindSendToPhone || '' });
+      fields.push({ name: 'PHONE NUMBER for overnight delivery_3', value: formData.inKindSendToPhone || '' });
       fields.push({ name: 'STREET ADDRESS_2', value: formData.inKindSendToAddress || '' });
       fields.push({ name: 'CITY_5', value: formData.inKindSendToCityStateZip || '' });
       fields.push({ name: 'REASON FOR SHIPPING TO NON-PAYEE 2', value: formData.inKindSendToReason || '' });
